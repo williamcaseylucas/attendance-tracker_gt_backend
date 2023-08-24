@@ -1,0 +1,7 @@
+pip install fastapi
+pip install uvicorn
+uvicorn main:app --reload
+
+ctrl + shift + p -> Select Python interpretor and then venv/bin/python`
+
+Go to /docs for routes
