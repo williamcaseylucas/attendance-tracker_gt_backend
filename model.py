@@ -8,3 +8,12 @@ class Student(BaseModel):
   attended: int
   missed: int
   present: bool
+  date: str | None # optional
+  
+class Attendence_Log(BaseModel):
+  email: str
+  date: str
+  
+class Teacher(BaseModel):
+  id: int
+  coords: List[float] | None

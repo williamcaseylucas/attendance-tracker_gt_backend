@@ -6,4 +6,5 @@ url = 'mongodb://root:example@localhost:27017/?authMechanism=DEFAULT'
 client = MongoClient(url)
 
 database = client.AttendenceTracker
-collection = database.students
+students_collection = database.students
+teacher_collection = database.teacher
