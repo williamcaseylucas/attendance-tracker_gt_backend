@@ -63,7 +63,7 @@ async def update_student(id: str, student: Student):
     collection.find_one_and_update({"_id": ObjectId(id)}, {
         "$set": dict(student)
     })
-    return students_serializer(collection.find({"_id": ObjectId(id)}))
+    return students_serializer(collection.find({"_id": ObjectId(id)}))[0]
 
 # delete
 @app.delete("/{id}")
