@@ -1,3 +1,4 @@
+import random
 from typing import List
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +14,8 @@ from schemas import students_serializer, student_serializer, teacher_serializer
 from bson import ObjectId
 
 app = FastAPI()
+
+teacher_id = []
 
 app.add_middleware(
   CORSMiddleware,
@@ -47,6 +50,51 @@ async def get_students():
     students = students_serializer(students_collection.find())
     return students
 
+@app.get('/close_attendance')
+async def close_attendance():
+  current_time = datetime.now()
+  last_hour = current_time - timedelta(hours=1)
+
+  # Convert the datetime objects to ISO format strings
+  current_time_iso = current_time.isoformat()
+  last_hour_iso = last_hour.isoformat()
+
+  # res = students_collection.find({"date": {"$gte": last_hour_iso, "$lt": current_time_iso}})
+  res = students_collection.find({'$nor': [{'date': {'$gte': last_hour_iso, '$lt': current_time_iso}}]})
+  not_attended = students_serializer(res)
+  
+  print('last hour: ', last_hour.strftime("%Y-%m-%d %H:%M:%S"))
+  print('current time: ', current_time.strftime("%Y-%m-%d %H:%M:%S"))
+  
+  if res:
+    ans = []
+    for student in not_attended:
+      print('db val time: ', datetime.fromisoformat(student['date']).strftime("%Y-%m-%d %H:%M:%S"))
+      ans.append(students_collection.find_one_and_update(
+        {'_id': ObjectId(student['id'])}, {'$set': {'missed': student['missed'] + 1}},return_document=ReturnDocument.AFTER
+      ))
+      
+    return students_serializer(ans)
+  else:
+    return HTTPException(404, 'No students absent')
+  
+  # --- Not Finished ---
+  # Email will be used to update the user in the db
+  """updated_student = students_collection.find_one_and_update(
+    {'email': email},
+    {'$inc': {'attended': 1}, '$set': {'date': date}},
+    return_document=ReturnDocument.AFTER
+  )
+  
+  if updated_student:
+    return students_serializer([updated_student])[0]
+  else:
+    return HTTPException(404, 'no such user')"""
+  # --- Not Finished ---
+  
+  return not_attended
+  
+
 @app.get('/register')
 async def get_coords_id():
   cursor = teacher_collection.find({})[0]
@@ -65,14 +113,19 @@ async def create_todo(student: Student):
     _id = students_collection.insert_one(dict(student))
     return students_serializer(students_collection.find({"_id": _id.inserted_id}))[0]
   
-  
 @app.put('/register')
 async def define_coords_id(data: Teacher):
+  print('from /register: ', data)
   teacher_collection.update_one(filter={},update={"$set": dict(data)}, upsert=True)
   cursor = teacher_collection.find({})[0]
-    
-  return teacher_serializer(cursor)
+  res = teacher_serializer(cursor)
+  if len(teacher_id) == 0:
+    teacher_id.append(res['primaryID'])
+  else:
+    teacher_id.pop()
+    teacher_id.append(res['primaryID'])
 
+  return res
 
 """
 {
@@ -114,7 +167,6 @@ async def log_attendance_of_student(data: Attendence_Log):
   else:
     return HTTPException(404, 'no such user')
 
-
 # update
 @app.put("/{id}")
 async def update_student(id: str, student: Student):
@@ -148,4 +200,20 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
   except WebSocketDisconnect:
     manager.disconnect(websocket)
     message = {'time': currency_time, 'client_id': client_id, 'message': 'Offline'}
+    
+    # Generate one new id to ensure no one can join the same link
+    # print('teacher_id', teacher_id[0])
+    # print('client_id', client_id)
+    if teacher_id[0] == client_id:
+      random_uuid = random.randint(10**9, 10**10 - 1)
+      print(random_uuid)
+      data = {
+        'id': random_uuid,
+        'coords': [0.0, 0.0]
+      }
+      
+      teacher_id.pop()
+      
+      teacher_collection.update_one(filter={},update={"$set": dict(data)}, upsert=True)
+      
     await manager.broadcast(json.dumps(message))
