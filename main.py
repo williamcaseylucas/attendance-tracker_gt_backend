@@ -54,6 +54,9 @@ async def get_students():
 async def close_attendance():
   current_time = datetime.now()
   last_hour = current_time - timedelta(hours=1)
+  
+  print('non iso time current time: ', current_time)
+  print('non iso time last hour: ', last_hour)
 
   # Convert the datetime objects to ISO format strings
   current_time_iso = current_time.isoformat()

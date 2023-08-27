@@ -5,7 +5,7 @@ def student_serializer(student) -> dict:
         "email": str(student["email"]),
         "attended": int(student["attended"]),
         "missed": int(student["missed"]),
-        "present": student["present"],
+        # "present": student["present"],
         "date": student["date"],
     }
 

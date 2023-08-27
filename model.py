@@ -7,7 +7,7 @@ class Student(BaseModel):
   email: str
   attended: int
   missed: int
-  present: bool
+  # present: bool
   date: str | None # optional
   
 class Attendence_Log(BaseModel):
