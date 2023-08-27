@@ -101,8 +101,6 @@ async def close_attendance():
     return HTTPException(404, 'no such user')"""
   # --- Not Finished ---
   
-  
-  
 
 @app.get('/register')
 async def get_coords_id():
@@ -118,7 +116,7 @@ async def get_student(id: str):
 
 # post
 @app.post("/")
-async def create_todo(student: Student):
+async def create_student(student: Student):
     _id = students_collection.insert_one(dict(student))
     return students_serializer(students_collection.find({"_id": _id.inserted_id}))[0]
   
