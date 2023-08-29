@@ -148,9 +148,10 @@ async def log_attendance_of_student(data: Attendence_Log):
   # Date needs to not be within an hour of the current time
   date_db = students_serializer(list(students_collection.find(
     {'email': email},
-  )))[0]
+  )))
   
   if date_db:
+    date_db = date_db[0]
     current_date = datetime.fromisoformat(date)
     db_date = datetime.fromisoformat(date_db['date'])
     db_date_one_hour_future = db_date + timedelta(hours=1)
@@ -168,6 +169,8 @@ async def log_attendance_of_student(data: Attendence_Log):
     {'$inc': {'attended': 1}, '$set': {'date': date}},
     return_document=ReturnDocument.AFTER
   )
+  
+  print('this is the updated student that just clicked submit: ', updated_student)
   
   if updated_student:
     return students_serializer([updated_student])[0]
@@ -210,7 +213,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     
     # Generate one new id to ensure no one can join the same link
     # print('teacher_id', teacher_id[0])
-    # print('client_id', client_id)
+    # print('client_id', client_id)'
+    print('length of teacher id before ', len(teacher_id))
     if len(teacher_id) != 0 and teacher_id[0] == client_id:
       random_uuid = random.randint(10**9, 10**10 - 1)
       print(random_uuid)
@@ -220,6 +224,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
       }
       
       teacher_id.pop()
+      print('length of teacher id after ', len(teacher_id))
       
       teacher_collection.update_one(filter={},update={"$set": dict(data)}, upsert=True)
       

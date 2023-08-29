@@ -7,7 +7,7 @@ ca = certifi.where() # Generate certification
 # url = 'mongodb://localhost:27017'
 # url = 'mongodb://root:example@localhost:27017/?authMechanism=DEFAULT'
 url = os.environ['MONGODB_URL']
-# export MONGODB_URL="mongodb+srv://<username>:<password>@cluster0.xa1ygkr.mongodb.net/"
+# export MONGODB_URL="mongodb+srv://wrunyon3:<password>@cluster0.xa1ygkr.mongodb.net/"
 client = MongoClient(url)
 
 database = client.AttendenceTracker
