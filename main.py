@@ -2,7 +2,8 @@ import random
 from typing import List
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from pytz import timezone
 import json
 
 from pymongo import ReturnDocument
@@ -52,7 +53,8 @@ async def get_students():
 
 @app.get('/close_attendance')
 async def close_attendance():
-  current_time = datetime.now()
+  tz = timezone('US/Eastern')
+  current_time = datetime.now(tz)
   last_hour = current_time - timedelta(hours=1)
   
   print('non iso time current time: ', current_time)
@@ -68,10 +70,15 @@ async def close_attendance():
   res = students_collection.update_many({'$nor': [{'date': {'$gte': last_hour_iso, '$lt': current_time_iso}}]}, {'$inc': {'missed': 1}})
   print(res.modified_count)
   
-  print('last hour: ', last_hour.strftime("%Y-%m-%d %H:%M:%S"))
-  print('current time: ', current_time.strftime("%Y-%m-%d %H:%M:%S"))
+  # print('last hour: ', last_hour_iso.strftime("%Y-%m-%d %H:%M:%S"))
+  # print('current time: ', current_time_iso.strftime("%Y-%m-%d %H:%M:%S"))
+  
+  print('last hour: ', last_hour_iso)
+  print('current time: ', current_time_iso)
   
   updated_students = students_collection.find({'$nor': [{'date': {'$gte': last_hour_iso, '$lt': current_time_iso}}]})
+  
+  print('these are the students that were updated: ', updated_students)
   
   return {'count': res.modified_count, 'data': students_serializer(updated_students)}
   

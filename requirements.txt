@@ -18,6 +18,19 @@
 # uvicorn==0.15.0
 # websockets==11.0.3asgiref==3.4.1
 
+# certifi==2023.7.22
+# click==8.0.1
+# dnspython==1.16.0
+# fastapi==0.68.1
+# h11==0.12.0
+# pydantic==1.10.0
+# pymongo==3.12.0
+# starlette==0.14.2
+# typing_extensions==4.7.1
+# uvicorn==0.15.0
+# websockets==11.0.3
+
+asgiref==3.4.1
 certifi==2023.7.22
 click==8.0.1
 dnspython==1.16.0
@@ -25,6 +38,7 @@ fastapi==0.68.1
 h11==0.12.0
 pydantic==1.10.0
 pymongo==3.12.0
+pytz==2023.3
 starlette==0.14.2
 typing_extensions==4.7.1
 uvicorn==0.15.0
