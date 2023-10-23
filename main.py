@@ -123,7 +123,12 @@ async def close_attendance():
 async def get_coords_id():
     cursor = teacher_collection.find({})[0]
     if cursor:
-        return teacher_serializer(cursor)
+        res = teacher_serializer(cursor)
+        print(
+            "this is the cursor from the .get(/register) path from the students side",
+            res,
+        )
+        return res
     else:
         return HTTPException(400, "Something weird happened...")
 
